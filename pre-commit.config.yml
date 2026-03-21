@@ -1,0 +1,14 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check (entire repo)
+        entry: poetry run python -m ruff check .
+        language: system
+        pass_filenames: false
+
+      - id: black-format
+        name: black format
+        entry: poetry run python -m black
+        language: system
+        types_or: [python, pyi]
