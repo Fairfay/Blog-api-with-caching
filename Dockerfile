@@ -1,4 +1,4 @@
-FROM python:3.12.5-slim as builder
+FROM python:3.12.5-slim AS builder
 
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONUNBUFFERED=1 \
@@ -27,7 +27,13 @@ RUN python -m pip install --upgrade pip \
 
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --no-root
+ARG INSTALL_DEV=false
+
+RUN if [ "$INSTALL_DEV" = "true" ]; then \
+        poetry install --with dev --no-root; \
+    else \
+        poetry install --only main --no-root; \
+    fi
 
 RUN python -m pip uninstall -y poetry \
     && rm -rf /root/.cache/pip /var/cache/pypoetry

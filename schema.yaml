@@ -1,0 +1,319 @@
+openapi: 3.0.3
+info:
+  title: Blog_api_with_caching
+  version: 0.1.0
+  description: Blog API with caching of posts
+paths:
+  /api/v1/posts/:
+    get:
+      operationId: posts_list
+      description: Возвращает список всех постов блога в порядке от новых к старым.
+      summary: Получить список постов
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Посты
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPostList'
+          description: ''
+    post:
+      operationId: posts_create
+      description: Создаёт новый пост. Если нужно прикрепить изображение, выберите
+        в Swagger UI тип тела запроса `multipart/form-data` и передайте файл в поле
+        `image`.
+      summary: Создать пост
+      tags:
+      - Посты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+            examples:
+              ПримерСозданияПоста:
+                value:
+                  title: Первый пост
+                  text: Короткий текст публикации для блога.
+                  author: 1
+                summary: Пример создания поста
+                description: Пример полей для создания поста. Файл изображения прикладывается
+                  отдельно в поле `image`.
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+            encoding:
+              image:
+                contentType: image/*
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+          description: ''
+        '400':
+          description: Ошибка валидации входных данных.
+  /api/v1/posts/{id}/:
+    get:
+      operationId: posts_retrieve
+      description: Сначала ищет пост в Redis-кеше. Если записи нет, получает пост
+        из PostgreSQL, сериализует его и сохраняет в кеш.
+      summary: Получить пост по ID
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Пост.
+        required: true
+      tags:
+      - Посты
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+          description: ''
+        '404':
+          description: Пост с таким ID не найден.
+    put:
+      operationId: posts_update
+      description: Полностью обновляет пост по ID и инвалидирует его кеш в Redis.
+        Для обновления изображения используйте `multipart/form-data`.
+      summary: Полностью обновить пост
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Пост.
+        required: true
+      tags:
+      - Посты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+            encoding:
+              image:
+                contentType: image/*
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+          description: ''
+        '400':
+          description: Ошибка валидации входных данных.
+        '404':
+          description: Пост с таким ID не найден.
+    patch:
+      operationId: posts_partial_update
+      description: Частично обновляет поля поста и сбрасывает кеш этой записи в Redis.
+      summary: Частично обновить пост
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Пост.
+        required: true
+      tags:
+      - Посты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPostRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPostRequest'
+            encoding:
+              image:
+                contentType: image/*
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+          description: ''
+        '400':
+          description: Ошибка валидации входных данных.
+        '404':
+          description: Пост с таким ID не найден.
+    delete:
+      operationId: posts_destroy
+      description: Удаляет пост по ID и инвалидирует его кеш в Redis.
+      summary: Удалить пост
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Пост.
+        required: true
+      tags:
+      - Посты
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: Пост успешно удалён.
+        '404':
+          description: Пост с таким ID не найден.
+components:
+  schemas:
+    PaginatedPostList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+    PatchedPostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: Заголовок поста.
+          maxLength: 256
+        text:
+          type: string
+          minLength: 1
+          description: Основное содержимое поста.
+        author:
+          type: integer
+          description: ID автора поста.
+        image:
+          type: string
+          format: binary
+          nullable: true
+          description: Изображение поста. Для загрузки через Swagger UI выберите `multipart/form-data`.
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Уникальный идентификатор поста.
+        title:
+          type: string
+          description: Заголовок поста.
+          maxLength: 256
+        text:
+          type: string
+          description: Основное содержимое поста.
+        author:
+          type: integer
+          description: ID автора поста.
+        image:
+          type: string
+          format: uri
+          nullable: true
+          description: Изображение поста. Для загрузки через Swagger UI выберите `multipart/form-data`.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Дата и время создания поста.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Дата и время последнего обновления поста.
+      required:
+      - author
+      - created_at
+      - id
+      - text
+      - title
+      - updated_at
+    PostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: Заголовок поста.
+          maxLength: 256
+        text:
+          type: string
+          minLength: 1
+          description: Основное содержимое поста.
+        author:
+          type: integer
+          description: ID автора поста.
+        image:
+          type: string
+          format: binary
+          nullable: true
+          description: Изображение поста. Для загрузки через Swagger UI выберите `multipart/form-data`.
+      required:
+      - author
+      - text
+      - title
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

@@ -20,12 +20,12 @@ REST API for blog posts with PostgreSQL persistence, Redis cache for the detail 
 
 ## API endpoints
 
-- `POST /api/v1/posts`
-- `GET /api/v1/posts`
-- `GET /api/v1/posts/{id}`
-- `PATCH /api/v1/posts/{id}`
-- `PUT /api/v1/posts/{id}`
-- `DELETE /api/v1/posts/{id}`
+- `POST /api/v1/posts/`
+- `GET /api/v1/posts/`
+- `GET /api/v1/posts/{id}/`
+- `PATCH /api/v1/posts/{id}/`
+- `PUT /api/v1/posts/{id}/`
+- `DELETE /api/v1/posts/{id}/`
 
 ## Architecture
 
@@ -61,15 +61,15 @@ Important variables:
 
 Default local ports in the provided `.env`:
 
-- PostgreSQL: `55432`
-- Redis: `56379`
+- PostgreSQL: `5432`
+- Redis: `6379`
 
 ## Local run with Poetry
 
 1. Install dependencies:
 
 ```bash
-poetry install
+poetry install --with dev
 ```
 
 2. Start PostgreSQL and Redis:
@@ -97,6 +97,9 @@ docker compose up --build
 ```
 
 The API will be available at `http://127.0.0.1:8000/api/v1/posts`.
+
+For development, Docker installs `main + dev` dependencies.
+For production, `docker-compose.prod.yml` installs only `main` dependencies.
 
 ## Run tests
 
