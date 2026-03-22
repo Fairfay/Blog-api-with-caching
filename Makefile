@@ -61,7 +61,7 @@ test:
 	$(POETRY) run pytest
 
 schema:
-	$(MANAGE) spectacular --file schema.yaml --validate
+	$(MANAGE) spectacular --file docs/schema.yml --validate
 
 lint:
 	$(POETRY) run ruff check .
