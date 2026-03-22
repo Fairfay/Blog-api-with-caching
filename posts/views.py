@@ -11,7 +11,7 @@ from drf_spectacular.utils import (
 
 from posts.models import Post
 from posts.serializers import PostSerializer
-from posts.services import (
+from posts.cached import (
     get_cached_post,
     invalidate_post_cache,
     set_cached_post,

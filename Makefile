@@ -58,7 +58,7 @@ run:
 	$(MANAGE) runserver
 
 test:
-	$(MANAGE) test
+	$(POETRY) run pytest
 
 schema:
 	$(MANAGE) spectacular --file schema.yaml --validate

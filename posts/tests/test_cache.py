@@ -1,78 +1,55 @@
-from django.contrib.auth import get_user_model
+import pytest
 from django.core.cache import cache
-from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from posts.models import Post
-from posts.services import get_post_cache_key
+from posts.cached import get_post_cache_key
 
 
-User = get_user_model()
+pytestmark = pytest.mark.django_db
 
 
-class PostCacheIntegrationTests(APITestCase):
-    def setUp(self):
-        super().setUp()
-        cache.clear()
-        self.author = User.objects.create_user(
-            username="cache-author",
-            password="strong-test-password",
-        )
-        self.post = Post.objects.create(
-            title="Cached post",
-            text="Initial text from the database.",
-            author=self.author,
-        )
-        self.detail_url = reverse("posts-detail", args=[self.post.pk])
+def test_retrieve_populates_cache_and_reuses_cached_payload(api_client, post, detail_url) -> None:
+    first_response = api_client.get(detail_url)
 
-    def tearDown(self):
-        cache.clear()
-        super().tearDown()
+    assert first_response.status_code == status.HTTP_200_OK
+    assert first_response.json()['text'] == post.text
 
-    def test_retrieve_populates_cache_and_reuses_cached_payload(self):
-        first_response = self.client.get(self.detail_url)
+    cache_key = get_post_cache_key(post.pk)
+    cached_payload = cache.get(cache_key)
 
-        self.assertEqual(first_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(first_response.json()["text"], self.post.text)
+    assert cached_payload is not None
+    assert cached_payload['title'] == post.title
 
-        cache_key = get_post_cache_key(self.post.pk)
-        cached_payload = cache.get(cache_key)
+    Post.objects.filter(pk=post.pk).update(
+        text='Database text changed after cache warmup.',
+    )
 
-        self.assertIsNotNone(cached_payload)
-        self.assertEqual(cached_payload["title"], self.post.title)
+    second_response = api_client.get(detail_url)
 
-        Post.objects.filter(pk=self.post.pk).update(
-            text="Database text changed after cache warmup.",
-        )
+    assert second_response.status_code == status.HTTP_200_OK
+    assert second_response.json()['text'] == 'Initial text from the database.'
 
-        second_response = self.client.get(self.detail_url)
 
-        self.assertEqual(second_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            second_response.json()["text"],
-            "Initial text from the database.",
-        )
+def test_update_and_delete_invalidate_post_cache(api_client, detail_url, post) -> None:
+    api_client.get(detail_url)
 
-    def test_update_and_delete_invalidate_post_cache(self):
-        self.client.get(self.detail_url)
+    cache_key = get_post_cache_key(post.pk)
+    assert cache.get(cache_key) is not None
 
-        cache_key = get_post_cache_key(self.post.pk)
-        self.assertIsNotNone(cache.get(cache_key))
+    update_response = api_client.patch(
+        detail_url,
+        {'title': 'Updated title', 'text': 'Updated text'},
+        format='json',
+    )
 
-        update_response = self.client.patch(
-            self.detail_url,
-            {"title": "Updated title", "text": "Updated text"},
-            format="json",
-        )
+    assert update_response.status_code == status.HTTP_200_OK
+    assert cache.get(cache_key) is None
 
-        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
-        self.assertIsNone(cache.get(cache_key))
+    api_client.get(detail_url)
+    assert cache.get(cache_key) is not None
 
-        self.client.get(self.detail_url)
-        self.assertIsNotNone(cache.get(cache_key))
+    delete_response = api_client.delete(detail_url)
 
-        delete_response = self.client.delete(self.detail_url)
-
-        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertIsNone(cache.get(cache_key))
+    assert delete_response.status_code == status.HTTP_204_NO_CONTENT
+    assert cache.get(cache_key) is None

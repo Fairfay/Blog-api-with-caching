@@ -7,6 +7,7 @@ import structlog
 import tomllib
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+IS_RUNNING_TESTS = "pytest" in sys.modules
 
 SECRET_KEY = config(
     "SECRET_KEY",
@@ -152,7 +153,7 @@ LOGS_DIR.mkdir(exist_ok=True)
 if DEBUG:
     DRF_STANDARDIZED_ERRORS = {"ENABLE_IN_DEBUG_FOR_UNHANDLED_EXCEPTIONS": True}
 
-    if find_spec("debug_toolbar") is not None:
+    if not IS_RUNNING_TESTS and find_spec("debug_toolbar") is not None:
         INSTALLED_APPS += [
             "debug_toolbar",
         ]
@@ -162,7 +163,7 @@ if DEBUG:
             "whitenoise.middleware.WhiteNoiseMiddleware",
         ]
 
-    if find_spec("debug_toolbar") is not None:
+    if not IS_RUNNING_TESTS and find_spec("debug_toolbar") is not None:
         MIDDLEWARE += [
             "debug_toolbar.middleware.DebugToolbarMiddleware",
         ]
