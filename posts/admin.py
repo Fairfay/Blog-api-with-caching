@@ -4,7 +4,7 @@ from posts.models import Post
 
 
 class PostAdmin(admin.ModelAdmin):
-    pass
+    """Настройки отображения постов в административной панели."""
 
 
 admin.site.register(Post, PostAdmin)

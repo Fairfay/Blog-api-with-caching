@@ -131,6 +131,7 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+.ruff_cache/
 
 # Pyre type checker
 .pyre/
@@ -161,5 +162,10 @@ sent_emails/
 
 static/*
 !static/.gitkeep
+
+staticfiles/*
+!staticfiles/.gitkeep
+
+gunicorn.ctl
 
 .log

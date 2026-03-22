@@ -1,18 +1,17 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
-# Кастомная модель пользователя, расширяющая стандартную AbstractUser
 class User(AbstractUser):
-    '''Кастомная модель пользователя'''
+    """Кастомная модель пользователя."""
 
     patronymic = models.CharField(
-        blank=True,
-        verbose_name='Отчество',
-        max_length=150
+        blank=True, max_length=150,
+        verbose_name="Отчество",
     )
 
-    class Meta():
-        # Настройки отображения в админке
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+    class Meta:
+        """Мета-настройки отображения модели пользователя."""
+
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"

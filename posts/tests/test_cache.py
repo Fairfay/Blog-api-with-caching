@@ -1,78 +1,65 @@
-from django.contrib.auth import get_user_model
+import pytest
 from django.core.cache import cache
-from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient
 
+from posts.cached import get_post_cache_key
 from posts.models import Post
-from posts.services import get_post_cache_key
+
+pytestmark = pytest.mark.django_db
 
 
-User = get_user_model()
+def test_retrieve_populates_cache_and_reuses_cached_payload(
+    api_client: APIClient,
+    post: Post,
+    detail_url: str,
+) -> None:
+    """Прогревает кеш при первом чтении и повторно использует закешированные данные."""
+    first_response = api_client.get(detail_url)
+
+    assert first_response.status_code == status.HTTP_200_OK
+    assert first_response.json()["text"] == post.text
+
+    cache_key = get_post_cache_key(post.pk)
+    cached_payload = cache.get(cache_key)
+
+    assert cached_payload is not None
+    assert cached_payload["title"] == post.title
+
+    Post.objects.filter(pk=post.pk).update(
+        text="Текст в базе изменён после прогрева кеша.",
+    )
+
+    second_response = api_client.get(detail_url)
+
+    assert second_response.status_code == status.HTTP_200_OK
+    assert second_response.json()["text"] == "Исходный текст из базы данных."
 
 
-class PostCacheIntegrationTests(APITestCase):
-    def setUp(self):
-        super().setUp()
-        cache.clear()
-        self.author = User.objects.create_user(
-            username="cache-author",
-            password="strong-test-password",
-        )
-        self.post = Post.objects.create(
-            title="Cached post",
-            text="Initial text from the database.",
-            author=self.author,
-        )
-        self.detail_url = reverse("posts-detail", args=[self.post.pk])
+def test_update_and_delete_invalidate_post_cache(
+    api_client: APIClient,
+    detail_url: str,
+    post: Post,
+) -> None:
+    """Инвалидирует кеш поста после обновления и удаления."""
+    api_client.get(detail_url)
 
-    def tearDown(self):
-        cache.clear()
-        super().tearDown()
+    cache_key = get_post_cache_key(post.pk)
+    assert cache.get(cache_key) is not None
 
-    def test_retrieve_populates_cache_and_reuses_cached_payload(self):
-        first_response = self.client.get(self.detail_url)
+    update_response = api_client.patch(
+        detail_url,
+        {"title": "Обновлённый заголовок", "text": "Обновлённый текст"},
+        format="json",
+    )
 
-        self.assertEqual(first_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(first_response.json()["text"], self.post.text)
+    assert update_response.status_code == status.HTTP_200_OK
+    assert cache.get(cache_key) is None
 
-        cache_key = get_post_cache_key(self.post.pk)
-        cached_payload = cache.get(cache_key)
+    api_client.get(detail_url)
+    assert cache.get(cache_key) is not None
 
-        self.assertIsNotNone(cached_payload)
-        self.assertEqual(cached_payload["title"], self.post.title)
+    delete_response = api_client.delete(detail_url)
 
-        Post.objects.filter(pk=self.post.pk).update(
-            text="Database text changed after cache warmup.",
-        )
-
-        second_response = self.client.get(self.detail_url)
-
-        self.assertEqual(second_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            second_response.json()["text"],
-            "Initial text from the database.",
-        )
-
-    def test_update_and_delete_invalidate_post_cache(self):
-        self.client.get(self.detail_url)
-
-        cache_key = get_post_cache_key(self.post.pk)
-        self.assertIsNotNone(cache.get(cache_key))
-
-        update_response = self.client.patch(
-            self.detail_url,
-            {"title": "Updated title", "text": "Updated text"},
-            format="json",
-        )
-
-        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
-        self.assertIsNone(cache.get(cache_key))
-
-        self.client.get(self.detail_url)
-        self.assertIsNotNone(cache.get(cache_key))
-
-        delete_response = self.client.delete(self.detail_url)
-
-        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertIsNone(cache.get(cache_key))
+    assert delete_response.status_code == status.HTTP_204_NO_CONTENT
+    assert cache.get(cache_key) is None

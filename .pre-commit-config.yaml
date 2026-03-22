@@ -1,0 +1,16 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: проверка ruff
+        entry: poetry run python -m ruff check --force-exclude
+        language: system
+        types_or: [python, pyi]
+        exclude: (^|/)(models\.py|manage\.py|migrations/.*\.py)$
+
+      - id: black-format
+        name: форматирование black
+        entry: poetry run python -m black
+        language: system
+        types_or: [python, pyi]
+        exclude: (^|/)(models\.py|manage\.py|migrations/.*\.py)$
