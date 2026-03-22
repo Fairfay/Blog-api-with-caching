@@ -1,37 +1,47 @@
 import pytest
 from django.core.cache import cache
 from rest_framework import status
+from rest_framework.test import APIClient
 
-from posts.models import Post
 from posts.cached import get_post_cache_key
-
+from posts.models import Post
 
 pytestmark = pytest.mark.django_db
 
 
-def test_retrieve_populates_cache_and_reuses_cached_payload(api_client, post, detail_url) -> None:
+def test_retrieve_populates_cache_and_reuses_cached_payload(
+    api_client: APIClient,
+    post: Post,
+    detail_url: str,
+) -> None:
+    """Прогревает кеш при первом чтении и повторно использует закешированные данные."""
     first_response = api_client.get(detail_url)
 
     assert first_response.status_code == status.HTTP_200_OK
-    assert first_response.json()['text'] == post.text
+    assert first_response.json()["text"] == post.text
 
     cache_key = get_post_cache_key(post.pk)
     cached_payload = cache.get(cache_key)
 
     assert cached_payload is not None
-    assert cached_payload['title'] == post.title
+    assert cached_payload["title"] == post.title
 
     Post.objects.filter(pk=post.pk).update(
-        text='Database text changed after cache warmup.',
+        text="Текст в базе изменён после прогрева кеша.",
     )
 
     second_response = api_client.get(detail_url)
 
     assert second_response.status_code == status.HTTP_200_OK
-    assert second_response.json()['text'] == 'Initial text from the database.'
+    assert second_response.json()["text"] == "Исходный текст из базы данных."
 
 
-def test_update_and_delete_invalidate_post_cache(api_client, detail_url, post) -> None:
+def test_update_and_delete_invalidate_post_cache(
+    api_client: APIClient,
+    detail_url: str,
+    post: Post,
+) -> None:
+    """Инвалидирует кеш поста после обновления и удаления."""
     api_client.get(detail_url)
 
     cache_key = get_post_cache_key(post.pk)
@@ -39,8 +49,8 @@ def test_update_and_delete_invalidate_post_cache(api_client, detail_url, post) -
 
     update_response = api_client.patch(
         detail_url,
-        {'title': 'Updated title', 'text': 'Updated text'},
-        format='json',
+        {"title": "Обновлённый заголовок", "text": "Обновлённый текст"},
+        format="json",
     )
 
     assert update_response.status_code == status.HTTP_200_OK

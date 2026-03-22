@@ -1,10 +1,11 @@
 import os
 import sys
+import tomllib
 from importlib.util import find_spec
 from pathlib import Path
-from decouple import config, Csv
+
 import structlog
-import tomllib
+from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 IS_RUNNING_TESTS = "pytest" in sys.modules
@@ -26,7 +27,7 @@ ALLOWED_HOSTS = config(
     default="127.0.0.1,localhost",
 )
 
-# Настройка приложений - 1. Django, 2. Сторонние, 3. Самописные 
+# Настройка приложений: Django, сторонние и локальные.
 DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -91,7 +92,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 
 
-# default database-------------------------------------
+# База данных по умолчанию.
 DATABASES = {
     "default": {
         "ENGINE": config("POSTGRES_ENGINE", default="django.db.backends.postgresql"),
@@ -100,11 +101,11 @@ DATABASES = {
         "PASSWORD": config("POSTGRES_PASSWORD", default="blog_password"),
         "HOST": config("POSTGRES_HOST", default="127.0.0.1"),
         "PORT": config("POSTGRES_PORT", default="5432"),
-    }
+    },
 }
 
 
-# default password validation--------------------------------------
+# Валидация паролей по умолчанию.
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -121,7 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# datetime server-----------------------------------------------------------
+# Настройки языка, времени и даты.
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -133,7 +134,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-# static and media-----------------------------------------------------------
+# Статика и медиа.
 STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -148,8 +149,7 @@ AUTH_USER_MODEL = "identity.User"
 LOGS_DIR = BASE_DIR / "logs"
 LOGS_DIR.mkdir(exist_ok=True)
 
-# more settings in Debug---------------------------------------------------
-
+# Дополнительные настройки в режиме DEBUG.
 if DEBUG:
     DRF_STANDARDIZED_ERRORS = {"ENABLE_IN_DEBUG_FOR_UNHANDLED_EXCEPTIONS": True}
 
@@ -199,8 +199,7 @@ else:
         "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     }
 
-# monitoring dublicate------------------------------------------------------------------------
-
+# Настройки мониторинга запросов.
 QUERYCOUNT = {
     "THRESHOLDS": {"MEDIUM": 50, "HIGH": 200, "MIN_TIME_TO_LOG": 0, "MIN_QUERY_COUNT_TO_LOG": 0},
     "IGNORE_REQUEST_PATTERNS": [],
@@ -209,7 +208,7 @@ QUERYCOUNT = {
     "RESPONSE_HEADER": "X-DjangoQueryCount-Count",
 }
 
-# logging----------------------------------------------------------------------
+# Логирование.
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -217,7 +216,7 @@ LOGGING = {
         "json_formatter": {
             "()": structlog.stdlib.ProcessorFormatter,
             "processor": structlog.processors.JSONRenderer(),
-        }
+        },
     },
     "handlers": {
         "console": {
@@ -255,8 +254,7 @@ structlog.configure(
     cache_logger_on_first_use=True,
 )
 
-# cors------------------------------------------------------------------------
-
+# Настройки CORS.
 CORS_ALLOW_ALL_ORIGINS = config("CORS_ALLOW_ALL_ORIGINS", cast=bool, default=True)
 CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", cast=Csv(), default="")
 
@@ -284,11 +282,11 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": REDIS_URL,
-    }
+    },
 }
 
-# swagger, redoc--------------------------------------------------------------
-# берем прямо из poetry, чтобы отдельно не настраивать здесь
+# Настройки Swagger и ReDoc.
+# Берём метаданные прямо из Poetry, чтобы не дублировать их в settings.py.
 with (BASE_DIR / "pyproject.toml").open("rb") as f:
     project_meta = tomllib.load(f).get("project", {})
 

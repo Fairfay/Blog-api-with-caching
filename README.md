@@ -1,4 +1,4 @@
-# Blog API with caching
+# Blog API с кешированием
 
 ## 1. Описание проекта
 Blog API with caching - это Django-приложение для работы с постами блога. Проект
@@ -47,8 +47,8 @@ cd Blog-api-with-caching
 cp .env.template .env
 ```
 
-Для production-окружения создай отдельный файл `.env.prod` по аналогии с
-`.env.template` и укажи в нем production-значения.
+Для продакшен-окружения создай отдельный файл `.env.prod` по аналогии с
+`.env.template` и укажи в нем значения для продакшена.
 
 ### 4.3. Запуск локальной версии в Docker
 Локальная версия поднимается одной командой:
@@ -61,14 +61,14 @@ docker compose up --build
 Контейнер `api` сам выполняет `check`, `makemigrations`, `migrate` и запускает
 dev-сервер.
 
-### 4.4. Запуск production-версии в Docker
-Production-версия поднимается через отдельный compose-файл:
+### 4.4. Запуск продакшен-версии в Docker
+Продакшен-версия поднимается через отдельный compose-файл:
 
 ```bash
 docker compose -f docker-compose.prod.yml up --build
 ```
 
-В production-режиме контейнер `api` выполняет `check`, `collectstatic`,
+В продакшен-режиме контейнер `api` выполняет `check`, `collectstatic`,
 `migrate` и запускает `gunicorn`.
 
 ### 4.5. Миграции
@@ -106,7 +106,7 @@ docker compose -f docker-compose.prod.yml exec api python manage.py createsuperu
 - Отдельная команда загрузки тестовых данных не требуется: для тестов
   используются fixtures и `model_bakery`
 - Для запуска тестов не нужен заранее созданный пользователь: тестовые записи
-  пользователей и постов создаются автоматически внутри test database
+  пользователей и постов создаются автоматически внутри тестовой базы данных
 - Для локальной работы рекомендуется держать приложение запущенным через
   `docker compose up --build`
 
@@ -159,7 +159,7 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/posts/1/
 Ключевые команды из `Makefile`:
 
 - `make install` - установка зависимостей приложения и dev-инструментов
-- `make install-prod` - установка только runtime-зависимостей
+- `make install-prod` - установка только основных зависимостей
 - `make check` - запуск `manage.py check`
 - `make test` - запуск тестов через `pytest`
 - `make lint` - запуск `ruff`
@@ -189,8 +189,8 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/posts/1/
 - Часто запрашиваемые посты естественным образом остаются в кеше дольше за
   счет регулярного чтения по `GET /posts/{id}`
 - При изменении или удалении поста кеш инвалидируется сразу
-- В проекте настроены Swagger UI, ReDoc и OpenAPI schema endpoint
-- В `deploy/nginx.template.conf` лежит production-шаблон для reverse proxy
+- В проекте настроены Swagger UI, ReDoc и эндпоинт схемы OpenAPI
+- В `deploy/nginx.template.conf` лежит продакшен-шаблон для обратного прокси
 
 ### 8.1. Почему выбран cache-aside
 Паттерн `cache-aside` хорошо подходит для этого задания, потому что источник
@@ -207,8 +207,8 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/posts/1/
 
 ## 9. Разработка
 ### 9.1. Зависимости
-- runtime-зависимости находятся в `[project.dependencies]`
-- dev-зависимости находятся в `[tool.poetry.group.dev.dependencies]`
+- основные зависимости находятся в `[project.dependencies]`
+- зависимости разработки находятся в `[tool.poetry.group.dev.dependencies]`
 
 ### 9.2. Структура проекта
 - `core/` - настройки Django, роутинг, WSGI
