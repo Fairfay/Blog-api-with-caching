@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.db import transaction
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiRequest,
@@ -135,11 +136,14 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer: Any) -> None:
         """Обновляет пост и сбрасывает его кеш."""
-        post = serializer.save()
-        invalidate_post_cache(post.pk)
+        with transaction.atomic():
+            post = serializer.save()
+            transaction.on_commit(lambda post_id=post.pk: invalidate_post_cache(post_id))
 
     def perform_destroy(self, instance: Post) -> None:
         """Удаляет пост и инвалидирует связанный ключ в кеше."""
         post_id = instance.pk
-        instance.delete()
-        invalidate_post_cache(post_id)
+
+        with transaction.atomic():
+            instance.delete()
+            transaction.on_commit(lambda post_id=post_id: invalidate_post_cache(post_id))
