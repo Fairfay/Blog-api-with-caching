@@ -37,3 +37,5 @@ RUN if [ "$INSTALL_DEV" = "true" ]; then \
 
 RUN python -m pip uninstall -y poetry \
     && rm -rf /root/.cache/pip /var/cache/pypoetry
+
+COPY . .

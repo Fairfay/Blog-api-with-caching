@@ -163,4 +163,9 @@ sent_emails/
 static/*
 !static/.gitkeep
 
+staticfiles/*
+!staticfiles/.gitkeep
+
+gunicorn.ctl
+
 .log
