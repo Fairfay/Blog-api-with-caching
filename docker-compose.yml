@@ -28,6 +28,7 @@ services:
       dockerfile: ./Dockerfile
       args:
         - ENVIRONMENT=development
+        - INSTALL_DEV=true
     working_dir: /code
     volumes:
       - .:/code
