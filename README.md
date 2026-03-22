@@ -1,14 +1,14 @@
 # Blog API с кешированием
 
 ## 1. Описание проекта
-Blog API with caching - это Django-приложение для работы с постами блога. Проект
-частично реализует API из тестового задания: хранит данные в PostgreSQL,
+Blog API с кешированием - это Django-приложение для работы с постами блога.
+Проект реализует API из тестового задания: хранит данные в PostgreSQL,
 использует Redis для кеширования детального чтения постов и документирует API
 через Swagger UI и ReDoc.
 
 Ключевая задача проекта - показать реализацию паттерна `cache-aside`: при
 `GET /api/v1/posts/{id}/` приложение сначала пытается получить данные из Redis,
-а при cache miss читает запись из PostgreSQL, сериализует ее и сохраняет в
+а при cache miss читает запись из PostgreSQL, сериализует её и сохраняет в
 кеш. При изменении или удалении поста связанный ключ в Redis инвалидируется.
 
 ## 2. Основной функционал
@@ -79,20 +79,20 @@ docker compose -f docker-compose.prod.yml up --build
 docker compose exec api python manage.py migrate
 ```
 
-Для production:
+Для продакшена:
 
 ```bash
 docker compose -f docker-compose.prod.yml exec api python manage.py migrate
 ```
 
 ### 4.6. Создание суперпользователя
-Дает доступ к документации и в админку
+Даёт доступ к админке:
 
 ```bash
 docker compose exec api python manage.py createsuperuser
 ```
 
-Для production:
+Для продакшена:
 
 ```bash
 docker compose -f docker-compose.prod.yml exec api python manage.py createsuperuser
@@ -164,30 +164,33 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/posts/1/
 - `make test` - запуск тестов через `pytest`
 - `make lint` - запуск `ruff`
 - `make format` - запуск `black`
-- `make schema` - валидация и экспорт OpenAPI schema
+- `make schema` - валидация и экспорт схемы OpenAPI
 - `make docker-dev-up` - поднять dev-стек
 - `make docker-prod-up` - поднять prod-стек
 - `make pre-commit-install` - установить git hooks
 
 ## 7. Структура данных
 ### 7.1. Post
-- `title` - заголовок поста
-- `text` - текст поста
-- `author` - внешний ключ на пользователя
-- `image` - изображение поста
-- `created_at` - дата создания
-- `updated_at` - дата обновления
+- `title` - обязательный заголовок поста, строка до `256` символов
+- `text` - обязательное основное содержимое поста
+- `author` - обязательный `ForeignKey` на пользователя `identity.User`, при
+  удалении пользователя связанные посты удаляются через `CASCADE`
+- `image` - необязательное изображение поста
+- `created_at` - дата и время создания, выставляется автоматически
+- `updated_at` - дата и время последнего обновления, обновляется автоматически
+- `post_created_at_idx` - индекс по полю `created_at` для ускорения выборок по
+  дате публикации
 
 ### 7.2. User
 - используется кастомная модель пользователя `identity.User`
-- модель расширяет `AbstractUser`
+- модель наследует стандартные поля `AbstractUser`
 - содержит дополнительное поле `patronymic`
 
 ## 8. Особенности
 - Для кеширования выбран паттерн `cache-aside`
 - Redis хранит сериализованное представление поста по ключу вида `post:{id}`
 - Часто запрашиваемые посты естественным образом остаются в кеше дольше за
-  счет регулярного чтения по `GET /posts/{id}`
+  счёт регулярного чтения по `GET /posts/{id}`
 - При изменении или удалении поста кеш инвалидируется сразу
 - В проекте настроены Swagger UI, ReDoc и эндпоинт схемы OpenAPI
 - В `deploy/nginx.template.conf` лежит продакшен-шаблон для обратного прокси
@@ -235,7 +238,7 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/posts/1/
 - `REDIS_URL` - URL подключения к Redis
 - `POST_CACHE_TIMEOUT` - TTL кеша поста в секундах
 - `CORS_ALLOW_ALL_ORIGINS` - разрешить все origin
-- `CORS_ALLOWED_ORIGINS` - список разрешенных origin
+- `CORS_ALLOWED_ORIGINS` - список разрешённых origin
 - `USE_HTTPS` - включение HTTPS-режима
 
 Шаблон переменных лежит в [.env.template](.env.template).
@@ -258,8 +261,13 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/posts/1/
 - `DELETE /api/v1/posts/{id}/`
 
 ## 12. Схема архитектуры
+ВНИМАНИЕ: Система спректорована разработчиком, рисунки и описание делал ИИ для ускорения работы
 Визуальная схема:
 
 ![Схема архитектуры](docs/architecture.svg)
 
 Текстовое описание и пояснения лежат в [docs/architecture.md](docs/architecture.md).
+
+
+## 13. ВНИМАНИЕ
+Система спректорована разработчиком, рисунки и описание(readme) делал ИИ для ускорения работы.
