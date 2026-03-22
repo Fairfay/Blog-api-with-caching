@@ -1,61 +1,70 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="980" height="620" viewBox="0 0 980 620" fill="none">
-  <rect width="980" height="620" fill="#F8F6F1"/>
-  <rect x="60" y="40" width="860" height="540" rx="28" fill="#FFFDF8" stroke="#1E3A34" stroke-width="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="640" viewBox="0 0 980 640" fill="none">
+  <rect width="980" height="640" fill="#F8F6F1"/>
+  <rect x="60" y="36" width="860" height="568" rx="28" fill="#FFFDF8" stroke="#1E3A34" stroke-width="2"/>
 
-  <text x="90" y="90" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">
+  <text x="90" y="86" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">
     Архитектура Blog API с кешированием
   </text>
-  <text x="90" y="122" fill="#46625B" font-family="Segoe UI, Arial, sans-serif" font-size="18">
-    Cache-aside для GET /api/v1/posts/{id}/ и инвалидации при update/delete
+  <text x="90" y="118" fill="#46625B" font-family="Segoe UI, Arial, sans-serif" font-size="18">
+    Docker Compose orchestrates api, db and redis. Nginx is optional for production.
   </text>
 
-  <rect x="100" y="180" width="180" height="84" rx="18" fill="#D7ECE5" stroke="#1E3A34" stroke-width="2"/>
-  <text x="190" y="228" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Клиент</text>
+  <rect x="100" y="170" width="180" height="84" rx="18" fill="#D7ECE5" stroke="#1E3A34" stroke-width="2"/>
+  <text x="190" y="218" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Клиент</text>
 
-  <rect x="390" y="180" width="200" height="84" rx="18" fill="#F7D9B8" stroke="#1E3A34" stroke-width="2"/>
-  <text x="490" y="228" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Nginx</text>
+  <rect x="320" y="170" width="180" height="84" rx="18" fill="#F7D9B8" stroke="#1E3A34" stroke-width="2"/>
+  <text x="410" y="212" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Nginx</text>
+  <text x="410" y="236" text-anchor="middle" fill="#46625B" font-family="Segoe UI, Arial, sans-serif" font-size="15">опционально в production</text>
 
-  <rect x="700" y="180" width="180" height="84" rx="18" fill="#D7E4F7" stroke="#1E3A34" stroke-width="2"/>
-  <text x="790" y="228" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Django API</text>
-  <text x="790" y="252" text-anchor="middle" fill="#46625B" font-family="Segoe UI, Arial, sans-serif" font-size="16">(DRF)</text>
+  <rect x="540" y="150" width="320" height="350" rx="26" fill="#F1F4EB" stroke="#50723C" stroke-width="2"/>
+  <text x="700" y="188" text-anchor="middle" fill="#385528" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">
+    Docker Compose
+  </text>
 
-  <rect x="610" y="380" width="180" height="92" rx="18" fill="#E8D7F7" stroke="#1E3A34" stroke-width="2"/>
-  <text x="700" y="430" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">PostgreSQL</text>
-  <text x="700" y="454" text-anchor="middle" fill="#46625B" font-family="Segoe UI, Arial, sans-serif" font-size="15">источник истины</text>
+  <rect x="595" y="220" width="210" height="86" rx="18" fill="#D7E4F7" stroke="#1E3A34" stroke-width="2"/>
+  <text x="700" y="268" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">api</text>
+  <text x="700" y="292" text-anchor="middle" fill="#46625B" font-family="Segoe UI, Arial, sans-serif" font-size="15">Django + DRF</text>
 
-  <rect x="790" y="380" width="120" height="92" rx="18" fill="#F4C7CF" stroke="#1E3A34" stroke-width="2"/>
-  <text x="850" y="430" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Redis</text>
-  <text x="850" y="454" text-anchor="middle" fill="#46625B" font-family="Segoe UI, Arial, sans-serif" font-size="15">кеш</text>
+  <rect x="575" y="360" width="180" height="96" rx="18" fill="#E8D7F7" stroke="#1E3A34" stroke-width="2"/>
+  <text x="665" y="412" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">db</text>
+  <text x="665" y="438" text-anchor="middle" fill="#46625B" font-family="Segoe UI, Arial, sans-serif" font-size="15">PostgreSQL</text>
 
-  <path d="M280 222H390" stroke="#1E3A34" stroke-width="3" stroke-linecap="round"/>
-  <path d="M590 222H700" stroke="#1E3A34" stroke-width="3" stroke-linecap="round"/>
-  <path d="M790 264V380" stroke="#1E3A34" stroke-width="3" stroke-linecap="round"/>
-  <path d="M820 264L850 380" stroke="#1E3A34" stroke-width="3" stroke-linecap="round"/>
+  <rect x="775" y="360" width="110" height="96" rx="18" fill="#F4C7CF" stroke="#1E3A34" stroke-width="2"/>
+  <text x="830" y="412" text-anchor="middle" fill="#1E3A34" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">redis</text>
+  <text x="830" y="438" text-anchor="middle" fill="#46625B" font-family="Segoe UI, Arial, sans-serif" font-size="15">cache</text>
 
-  <polygon points="386,214 402,222 386,230" fill="#1E3A34"/>
-  <polygon points="696,214 712,222 696,230" fill="#1E3A34"/>
-  <polygon points="782,376 790,392 798,376" fill="#1E3A34"/>
-  <polygon points="842,375 850,391 858,375" fill="#1E3A34"/>
+  <path d="M280 212H320" stroke="#1E3A34" stroke-width="3" stroke-linecap="round"/>
+  <path d="M500 212H595" stroke="#1E3A34" stroke-width="3" stroke-linecap="round"/>
+  <path d="M700 306V360" stroke="#1E3A34" stroke-width="3" stroke-linecap="round"/>
+  <path d="M730 306L810 360" stroke="#1E3A34" stroke-width="3" stroke-linecap="round"/>
 
-  <rect x="110" y="320" width="400" height="200" rx="24" fill="#F3EFE5" stroke="#B5895C" stroke-width="2"/>
-  <text x="140" y="360" fill="#7A4B1F" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">
+  <polygon points="316,204 332,212 316,220" fill="#1E3A34"/>
+  <polygon points="591,204 607,212 591,220" fill="#1E3A34"/>
+  <polygon points="692,356 700,372 708,356" fill="#1E3A34"/>
+  <polygon points="802,357 815,364 806,378" fill="#1E3A34"/>
+
+  <rect x="100" y="320" width="400" height="220" rx="24" fill="#F3EFE5" stroke="#B5895C" stroke-width="2"/>
+  <text x="130" y="360" fill="#7A4B1F" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">
     GET /api/v1/posts/{id}/
   </text>
-  <text x="140" y="396" fill="#4B3C2A" font-family="Segoe UI, Arial, sans-serif" font-size="18">
+  <text x="130" y="396" fill="#4B3C2A" font-family="Segoe UI, Arial, sans-serif" font-size="18">
     1. Проверка Redis по ключу post:{id}
   </text>
-  <text x="140" y="426" fill="#4B3C2A" font-family="Segoe UI, Arial, sans-serif" font-size="18">
-    2. Попадание в кеш -> вернуть готовые данные
+  <text x="130" y="426" fill="#4B3C2A" font-family="Segoe UI, Arial, sans-serif" font-size="18">
+    2. Попадание в кеш - вернуть готовые данные
   </text>
-  <text x="140" y="456" fill="#4B3C2A" font-family="Segoe UI, Arial, sans-serif" font-size="18">
-    3. Промах мимо кеша -> чтение из PostgreSQL
+  <text x="130" y="456" fill="#4B3C2A" font-family="Segoe UI, Arial, sans-serif" font-size="18">
+    3. Промах мимо кеша - чтение из PostgreSQL
   </text>
-  <text x="140" y="486" fill="#4B3C2A" font-family="Segoe UI, Arial, sans-serif" font-size="18">
+  <text x="130" y="486" fill="#4B3C2A" font-family="Segoe UI, Arial, sans-serif" font-size="18">
     4. Сериализация и запись данных в Redis
   </text>
+  <text x="130" y="516" fill="#4B3C2A" font-family="Segoe UI, Arial, sans-serif" font-size="18">
+    5. Возврат ответа клиенту
+  </text>
 
-  <rect x="540" y="500" width="370" height="60" rx="18" fill="#E7F0D8" stroke="#50723C" stroke-width="2"/>
-  <text x="725" y="538" text-anchor="middle" fill="#385528" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">
-    PATCH / PUT / DELETE -> сразу удалить ключ Redis
+  <rect x="520" y="540" width="380" height="48" rx="16" fill="#E7F0D8" stroke="#50723C" stroke-width="2"/>
+  <text x="710" y="570" text-anchor="middle" fill="#385528" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">
+    PATCH / PUT / DELETE - сразу удалить ключ Redis
   </text>
 </svg>
