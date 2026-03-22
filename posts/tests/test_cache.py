@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 from posts.cached import get_post_cache_key
 from posts.models import Post
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def test_retrieve_populates_cache_and_reuses_cached_payload(
