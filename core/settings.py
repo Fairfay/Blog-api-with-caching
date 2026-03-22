@@ -52,6 +52,17 @@ LOCAL_APPS = [
     "posts.apps.PostsConfig",
 ]
 
+
+def is_optional_module_available(module_name: str) -> bool:
+    """Проверить доступность необязательного Python-модуля."""
+    return find_spec(module_name) is not None
+
+
+def extend_enabled_items(target: list[str], *items: tuple[bool, str]) -> None:
+    """Добавить элементы в список настроек только для включённых условий."""
+    target.extend(value for enabled, value in items if enabled)
+
+
 INSTALLED_APPS = [
     *DJANGO_APPS,
     *THIRD_PARTY_APPS,
@@ -152,31 +163,32 @@ LOGS_DIR.mkdir(exist_ok=True)
 # Дополнительные настройки в режиме DEBUG.
 if DEBUG:
     DRF_STANDARDIZED_ERRORS = {"ENABLE_IN_DEBUG_FOR_UNHANDLED_EXCEPTIONS": True}
+    debug_toolbar_enabled = not IS_RUNNING_TESTS and is_optional_module_available("debug_toolbar")
 
-    if not IS_RUNNING_TESTS and find_spec("debug_toolbar") is not None:
-        INSTALLED_APPS += [
-            "debug_toolbar",
-        ]
+    extend_enabled_items(
+        INSTALLED_APPS,
+        (debug_toolbar_enabled, "debug_toolbar"),
+    )
 
-    if find_spec("whitenoise") is not None:
-        MIDDLEWARE += [
+    extend_enabled_items(
+        MIDDLEWARE,
+        (
+            is_optional_module_available("whitenoise"),
             "whitenoise.middleware.WhiteNoiseMiddleware",
-        ]
-
-    if not IS_RUNNING_TESTS and find_spec("debug_toolbar") is not None:
-        MIDDLEWARE += [
+        ),
+        (
+            debug_toolbar_enabled,
             "debug_toolbar.middleware.DebugToolbarMiddleware",
-        ]
-
-    if find_spec("query_counter") is not None:
-        MIDDLEWARE += [
+        ),
+        (
+            is_optional_module_available("query_counter"),
             "query_counter.middleware.DjangoQueryCounterMiddleware",
-        ]
-
-    if find_spec("querycount") is not None:
-        MIDDLEWARE += [
+        ),
+        (
+            is_optional_module_available("querycount"),
             "querycount.middleware.QueryCountMiddleware",
-        ]
+        ),
+    )
 
     REST_FRAMEWORK = {
         "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),

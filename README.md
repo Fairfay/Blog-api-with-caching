@@ -98,6 +98,28 @@ docker compose exec api python manage.py createsuperuser
 docker compose -f docker-compose.prod.yml exec api python manage.py createsuperuser
 ```
 
+### 4.7. Запуск тестов
+Тесты запускаются через контейнер `api`. Пользователь и тестовые записи создаются автоматически
+внутри тестовой базы данных, поэтому отдельная подготовка данных не нужна.
+
+Для локальной версии:
+
+```bash
+docker compose exec api pytest
+```
+
+Если контейнеры ещё не подняты:
+
+```bash
+docker compose run --rm api pytest
+```
+
+Для продакшен-compose:
+
+```bash
+docker compose -f docker-compose.prod.yml exec api pytest
+```
+
 ## 5. Использование
 - Основной API доступен по адресу `http://127.0.0.1:8000/api/v1/`
 - Админка доступна по адресу `http://127.0.0.1:8000/admin/`
@@ -218,7 +240,7 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/posts/1/
 - `posts/` - модель поста, API, кеширование, тесты
 - `identity/` - кастомная модель пользователя
 - `deploy/` - инфраструктурные шаблоны, включая `nginx`
-- `docs/` - схема архитектуры и сопроводительная документация
+- `docs/` - схема архитектуры, локально выгруженная OpenAPI-схема и сопроводительная документация
 
 ### 9.3. Логирование
 - используется `django-structlog`
@@ -249,6 +271,7 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/posts/1/
 - Swagger UI: `http://127.0.0.1:8000/api/v1/schema/swagger-ui/`
 - ReDoc: `http://127.0.0.1:8000/api/v1/schema/redoc/`
 - OpenAPI schema: `http://127.0.0.1:8000/api/v1/schema/`
+- Локально выгруженная схема: [docs/schema.yml](docs/schema.yml)
 - Healthcheck: `http://127.0.0.1:8000/api/health/`
 
 Основные эндпоинты постов:
