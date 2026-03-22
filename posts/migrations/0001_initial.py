@@ -15,19 +15,37 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Post',
+            name="Post",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=256, verbose_name='Заголовок')),
-                ('text', models.TextField(verbose_name='Содержание')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата и время создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата и время обновления')),
-                ('image', models.ImageField(blank=True, upload_to='', verbose_name='Р¤РѕС‚Рѕ')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Автор')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("title", models.CharField(max_length=256, verbose_name="Заголовок")),
+                ("text", models.TextField(verbose_name="Содержание")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Дата и время создания"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Дата и время обновления"),
+                ),
+                ("image", models.ImageField(blank=True, upload_to="", verbose_name="Р¤РѕС‚Рѕ")),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Автор",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
-                'indexes': [models.Index(fields=['created_at'], name='post_created_at_idx')],
+                "ordering": ["-created_at"],
+                "indexes": [models.Index(fields=["created_at"], name="post_created_at_idx")],
             },
         ),
     ]
