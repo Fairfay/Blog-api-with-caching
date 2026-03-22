@@ -2,13 +2,15 @@ repos:
   - repo: local
     hooks:
       - id: ruff-check
-        name: ruff check (entire repo)
-        entry: poetry run python -m ruff check .
+        name: проверка ruff
+        entry: poetry run python -m ruff check --force-exclude
         language: system
-        pass_filenames: false
+        types_or: [python, pyi]
+        exclude: (^|/)(models\.py|manage\.py|migrations/.*\.py)$
 
       - id: black-format
-        name: black format
+        name: форматирование black
         entry: poetry run python -m black
         language: system
         types_or: [python, pyi]
+        exclude: (^|/)(models\.py|manage\.py|migrations/.*\.py)$

@@ -3,11 +3,12 @@ from rest_framework import serializers
 
 from posts.models import Post
 
-
 User = get_user_model()
 
 
 class PostSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания, обновления и чтения постов."""
+
     id = serializers.IntegerField(
         read_only=True,
         help_text="Уникальный идентификатор поста.",
@@ -21,7 +22,7 @@ class PostSerializer(serializers.ModelSerializer):
     )
     author = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
-        help_text="ID автора поста.",
+        help_text="Идентификатор автора поста.",
     )
     image = serializers.ImageField(
         required=False,
@@ -40,6 +41,8 @@ class PostSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        """Настройки сериализатора поста."""
+
         model = Post
         fields = "__all__"
         read_only_fields = ("id", "created_at", "updated_at")

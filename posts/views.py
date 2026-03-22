@@ -1,6 +1,5 @@
-from rest_framework import viewsets
-from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
-from rest_framework.response import Response
+from typing import Any
+
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiRequest,
@@ -8,15 +7,18 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
+from rest_framework import viewsets
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.request import Request
+from rest_framework.response import Response
 
-from posts.models import Post
-from posts.serializers import PostSerializer
-from posts.services import (
+from posts.cached import (
     get_cached_post,
     invalidate_post_cache,
     set_cached_post,
 )
-
+from posts.models import Post
+from posts.serializers import PostSerializer
 
 POST_REQUEST = {
     "application/json": PostSerializer,
@@ -33,7 +35,7 @@ POST_REQUEST = {
     list=extend_schema(
         tags=["Посты"],
         summary="Получить список постов",
-        description=("Возвращает список всех постов блога в порядке от новых к старым."),
+        description="Возвращает список всех постов блога в порядке от новых к старым.",
         responses={200: PostSerializer(many=True)},
     ),
     retrieve=extend_schema(
@@ -94,7 +96,7 @@ POST_REQUEST = {
     partial_update=extend_schema(
         tags=["Посты"],
         summary="Частично обновить пост",
-        description=("Частично обновляет поля поста и сбрасывает кеш этой записи в Redis."),
+        description="Частично обновляет поля поста и сбрасывает кеш этой записи в Redis.",
         request=POST_REQUEST,
         responses={
             200: PostSerializer,
@@ -113,11 +115,14 @@ POST_REQUEST = {
     ),
 )
 class PostViewSet(viewsets.ModelViewSet):
+    """ViewSet для CRUD-операций над постами и работы с кешем."""
+
     queryset = Post.objects.select_related("author")
     serializer_class = PostSerializer
     parser_classes = [JSONParser, MultiPartParser, FormParser]
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """Возвращает пост из кеша или прогревает кеш при его отсутствии."""
         post_id = self.kwargs["pk"]
         cached_post = get_cached_post(post_id)
 
@@ -128,11 +133,13 @@ class PostViewSet(viewsets.ModelViewSet):
         set_cached_post(post_id, response.data)
         return response
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer: Any) -> None:
+        """Обновляет пост и сбрасывает его кеш."""
         post = serializer.save()
         invalidate_post_cache(post.pk)
 
-    def perform_destroy(self, instance):
+    def perform_destroy(self, instance: Post) -> None:
+        """Удаляет пост и инвалидирует связанный ключ в кеше."""
         post_id = instance.pk
         instance.delete()
         invalidate_post_cache(post_id)

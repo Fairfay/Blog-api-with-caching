@@ -1,6 +1,6 @@
 [project]
 name = "Blog_api_with_caching"
-version = "0.1.1"
+version = "0.2.3"
 description = "Blog API with caching of posts"
 authors = [
     {name = "Tychin Denis"}
@@ -40,11 +40,15 @@ black = "25.12.0"
 ruff = "0.11.13"
 django-debug-toolbar = "6.2.0"
 pre-commit = "4.5.1"
+model-bakery = "1.23.3"
+pytest = "9.0.2"
+pytest-django = "4.12.0"
 
 [tool.black]
 line-length = 99
 target-version = ["py312"]
 include = "\\.pyi?$"
+extend-exclude = "(^|/)(migrations/|manage\\.py$|models\\.py$)"
 
 [tool.ruff]
 indent-width = 4
@@ -56,6 +60,9 @@ exclude = [
     "src/alembic",
     "alembic",
     "data/docs_assets",
+    "**/migrations/*.py",
+    "manage.py",
+    "**/models.py",
 ]
 
 [tool.ruff.format]
@@ -114,3 +121,9 @@ max-complexity = 10
 [tool.ruff.lint.pycodestyle]
 max-doc-length = 60
 max-line-length = 99
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "core.settings"
+python_files = ["test_*.py", "*_tests.py"]
+testpaths = ["posts/tests"]
+addopts = "-ra"
